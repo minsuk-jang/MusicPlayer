@@ -1,4 +1,4 @@
-package com.example.musicplayer.base
+package com.example.musicplayer.ui.base
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes

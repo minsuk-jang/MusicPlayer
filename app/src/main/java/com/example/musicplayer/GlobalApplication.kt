@@ -1,7 +1,6 @@
 package com.example.musicplayer
 
 import android.app.Application
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.musicplayer.di.helperModules
 import com.orhanobut.logger.AndroidLogAdapter
@@ -16,7 +15,7 @@ class GlobalApplication : Application() {
 
         Logger.addLogAdapter(object : AndroidLogAdapter(){
             override fun isLoggable(priority: Int, tag: String?): Boolean {
-                return Build.DEBUG
+                return BuildConfig.DEBUG
             }
         })
 
