@@ -18,7 +18,8 @@ import com.example.musicplayer.ui.base.BaseActivity
 import com.orhanobut.logger.Logger
 import org.koin.android.ext.android.get
 
-class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscriptionListener, MusicAdapter.OnItemClickListener {
+class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscriptionListener,
+    MusicAdapter.OnItemClickListener {
     override fun layoutIds(): Int = R.layout.activity_main
     private lateinit var musicAdapter: MusicAdapter
     private val permissionResult =
@@ -41,7 +42,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
     }
 
     override fun onItemClick(item: MediaBrowserCompat.MediaItem) {
-        musicHelper.controller?.transportControls?.playFromMediaId(item.mediaId,null)
+        musicHelper.controller?.transportControls?.playFromMediaId(item.mediaId, null)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +79,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
         }
     }
 
+    override fun onControllerDone(controllerCompat: MediaControllerCompat) {
+        binding.bottomController.setController(controllerCompat)
+    }
+
     override fun onChildrenLoaded(
         parentId: String,
         children: MutableList<MediaBrowserCompat.MediaItem>
@@ -87,11 +92,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
 
     override fun onStart() {
         super.onStart()
-        musicHelper.registerCallback(callback)
+        musicHelper.run {
+            registerCallback(callback)
+            registerCallback(binding.bottomController.callback)
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        musicHelper.unregisterCallback(callback)
+        musicHelper.run {
+            unregisterCallback(callback)
+            unregisterCallback(binding.bottomController.callback)
+        }
+
     }
 }
