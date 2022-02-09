@@ -43,7 +43,7 @@ class MusicHelper(private val context: Context) {
             parentId: String,
             children: MutableList<MediaBrowserCompat.MediaItem>
         ) {
-            Logger.e("subscrption")
+            Logger.i("Subscription complete")
             listener?.onChildrenLoaded(parentId, children)
         }
     }

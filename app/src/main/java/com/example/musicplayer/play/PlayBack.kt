@@ -106,6 +106,7 @@ class PlayBack(context: Context, val listener: PlayBackInfoListener) : BasePlayB
                 it.currentPosition
             } ?: 0
 
+
         val builder = PlaybackStateCompat.Builder().apply {
             setActions(getActions())
             setState(

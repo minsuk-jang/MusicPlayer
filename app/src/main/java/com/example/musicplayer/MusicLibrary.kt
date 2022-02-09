@@ -39,7 +39,7 @@ object MusicLibrary {
     /**
      * 로컬에서 음악 데이터를 가져오는 메소드
      */
-    fun Context.loadLocalMusics(): MutableList<MediaBrowserCompat.MediaItem> {
+    fun Context.loadLocalMusics(): MutableList<MediaMetadataCompat> {
         val exCur = contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projects, selection, null, null
@@ -89,12 +89,7 @@ object MusicLibrary {
 
         library[KEY] = ret
 
-        return ret.map {
-            MediaBrowserCompat.MediaItem(
-                it.description,
-                FLAG_PLAYABLE
-            )
-        }.toMutableList()
+        return ret
 
     }
 }
