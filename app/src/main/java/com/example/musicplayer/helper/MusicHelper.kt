@@ -20,6 +20,7 @@ class MusicHelper(private val context: Context) {
             browser?.let {
                 controller = MediaControllerCompat(context, it.sessionToken).apply {
                     registerCallback(controllerCallback)
+                    listener?.onControllerDone(this)
                 }
                 it.subscribe(MusicLibrary.ROOT_ID, subscriptionCallback)
             }
@@ -32,6 +33,7 @@ class MusicHelper(private val context: Context) {
 
     interface OnSubscriptionListener {
         fun onChildrenLoaded(parentId: String, children: MutableList<MediaBrowserCompat.MediaItem>)
+        fun onControllerDone(controllerCompat: MediaControllerCompat)
     }
 
     var listener: OnSubscriptionListener? = null
@@ -41,7 +43,7 @@ class MusicHelper(private val context: Context) {
             parentId: String,
             children: MutableList<MediaBrowserCompat.MediaItem>
         ) {
-            Logger.e("subscrption")
+            Logger.i("Subscription complete")
             listener?.onChildrenLoaded(parentId, children)
         }
     }
@@ -70,11 +72,13 @@ class MusicHelper(private val context: Context) {
     }
 
     fun connect() {
-        browser?.connect()
+        if (browser?.isConnected == false)
+            browser?.connect()
     }
 
     fun disconnect() {
-        browser?.disconnect()
+        if (browser?.isConnected == true)
+            browser?.disconnect()
     }
 
     fun registerCallback(callback: MediaControllerCompat.Callback) {

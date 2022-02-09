@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -15,14 +16,20 @@ import com.example.musicplayer.MusicLibrary.loadMetaData
 import com.example.musicplayer.notification.MusicNotification
 import com.example.musicplayer.play.PlayBack
 import com.example.musicplayer.play.PlayBackInfoListener
+import com.example.musicplayer.ui.util.supervisorJob
 import com.orhanobut.logger.Logger
+import kotlinx.coroutines.*
 
+/**
+ * 1. 서비스의 세션을 이용해서 media item을 가져온다.
+ * 2. 현재 실행중인 media item을 playback을 보낸다.
+ */
 class MusicService : MediaBrowserServiceCompat() {
     private var session: MediaSessionCompat? = null
     private var playBack: PlayBack? = null
     private var musicNotification: MusicNotification? = null
-
     private var serviceStart = false
+
 
     private val listener = object : PlayBackInfoListener {
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
@@ -56,7 +63,7 @@ class MusicService : MediaBrowserServiceCompat() {
                     stopSelf()
                     serviceStart = false
                 }
-                PlaybackStateCompat.STATE_PAUSED -> {
+                PlaybackStateCompat.STATE_PAUSED  -> {
                     stopForeground(false)
 
                     val item = musicNotification?.build(
@@ -112,6 +119,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+        Logger.e("onCreate")
         session = MediaSessionCompat(
             applicationContext, "com.example.MusicPlayer",
             ComponentName(applicationContext, this.javaClass), null
@@ -131,6 +139,7 @@ class MusicService : MediaBrowserServiceCompat() {
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot? {
+        Logger.e("onGetRoot")
         return BrowserRoot(MusicLibrary.ROOT_ID, null)
     }
 
@@ -139,7 +148,29 @@ class MusicService : MediaBrowserServiceCompat() {
         result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
         if (parentId == MusicLibrary.ROOT_ID) {
-            result.sendResult(loadLocalMusics())
+
+            CoroutineScope(supervisorJob).launch {
+                val item = loadLocalMusics()
+
+                //화면에 구성할 리스트
+                result.sendResult(item.map {
+                    MediaBrowserCompat.MediaItem(
+                        it.description,
+                        FLAG_PLAYABLE
+                    )
+                }.toMutableList())
+
+
+                session?.setQueue(item.map {
+                    MediaSessionCompat.QueueItem(
+                        it.description,
+                        it.description.mediaId?.toLong()!!
+                    )
+                }.toList())
+
+            }.start()
+
+            result.detach()
             return
         }
 
