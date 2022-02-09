@@ -15,31 +15,21 @@ import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.helper.MusicHelper
 import com.example.musicplayer.ui.adapter.MusicAdapter
 import com.example.musicplayer.ui.base.BaseActivity
+import com.example.musicplayer.viewModel.MainActivityViewModel
 import com.orhanobut.logger.Logger
 import org.koin.android.ext.android.get
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ * 로컬 내부에 음악이 없을 경우, 플로우 고려
+ */
 class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscriptionListener,
     MusicAdapter.OnItemClickListener {
+
     override fun layoutIds(): Int = R.layout.activity_main
     private lateinit var musicAdapter: MusicAdapter
-    private val permissionResult =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            if (it.all { it.value }) {
-                initUI()
-            }
-        }
-
     private val musicHelper: MusicHelper = get()
-
-    private val callback = object : MediaControllerCompat.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-
-        }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-
-        }
-    }
+    private val vm: MainActivityViewModel by viewModel()
 
     override fun onItemClick(item: MediaBrowserCompat.MediaItem) {
         musicHelper.controller?.transportControls?.playFromMediaId(item.mediaId, null)
@@ -48,19 +38,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.lifecycleOwner = this
+        binding.vm = vm
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            initUI()
-        } else
-            permissionResult.launch(
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            )
+        initUI()
     }
 
     private fun initUI() {
@@ -75,9 +55,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
 
         musicHelper.run {
             listener = this@MainActivity
-            connect()
         }
     }
+
 
     override fun onControllerDone(controllerCompat: MediaControllerCompat) {
         binding.bottomController.setController(controllerCompat)
@@ -92,8 +72,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
 
     override fun onStart() {
         super.onStart()
+        musicHelper.connect()
+
         musicHelper.run {
-            registerCallback(callback)
             registerCallback(binding.bottomController.callback)
         }
     }
@@ -101,9 +82,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MusicHelper.OnSubscrip
     override fun onPause() {
         super.onPause()
         musicHelper.run {
-            unregisterCallback(callback)
             unregisterCallback(binding.bottomController.callback)
         }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        musicHelper.disconnect()
     }
 }

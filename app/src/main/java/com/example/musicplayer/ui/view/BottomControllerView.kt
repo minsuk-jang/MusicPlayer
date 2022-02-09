@@ -14,7 +14,7 @@ import com.example.musicplayer.helper.MusicHelper
 import com.orhanobut.logger.Logger
 
 /**
- * @JvmOverloads를 넣으면 반드시 생성자에 default값을 넣는다
+ * @JvmOverloads를 넣으면 반드시 생성자에 default 값을 넣는다
  */
 class BottomControllerView @JvmOverloads constructor(
     context: Context,
@@ -55,9 +55,7 @@ class BottomControllerView @JvmOverloads constructor(
     }
 
     private fun initUI() {
-        Logger.e("initUI")
         binding.imageViewPlayPause.setOnClickListener {
-            Logger.i("isplaying: $isPlaying")
             when (isPlaying) {
                 true -> controller?.transportControls?.pause()
                 else -> controller?.let {

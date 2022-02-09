@@ -72,11 +72,13 @@ class MusicHelper(private val context: Context) {
     }
 
     fun connect() {
-        browser?.connect()
+        if (browser?.isConnected == false)
+            browser?.connect()
     }
 
     fun disconnect() {
-        browser?.disconnect()
+        if (browser?.isConnected == true)
+            browser?.disconnect()
     }
 
     fun registerCallback(callback: MediaControllerCompat.Callback) {

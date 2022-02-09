@@ -16,8 +16,12 @@ object MusicLibrary {
     )
 
 
+    /**
+     * 실제 device: application/ogg
+     * emulator: audio/ogg
+     */
     private val selection =
-        MediaStore.Audio.Media.IS_MUSIC + " != 0 and " + MediaStore.Audio.Media.MIME_TYPE + " !='audio/ogg'"
+        MediaStore.Audio.Media.IS_MUSIC + " != 0 and " + MediaStore.Audio.Media.MIME_TYPE + " !='application/ogg'"
 
     private val projects = arrayOf(
         MediaStore.Audio.Media.ALBUM_ID,
