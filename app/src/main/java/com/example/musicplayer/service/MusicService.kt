@@ -20,6 +20,10 @@ import com.example.musicplayer.ui.util.supervisorJob
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.*
 
+/**
+ * 1. 서비스의 세션을 이용해서 media item을 가져온다.
+ * 2. 현재 실행중인 media item을 playback을 보낸다.
+ */
 class MusicService : MediaBrowserServiceCompat() {
     private var session: MediaSessionCompat? = null
     private var playBack: PlayBack? = null
