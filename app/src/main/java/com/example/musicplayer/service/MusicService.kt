@@ -8,6 +8,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.example.musicplayer.MusicLibrary
@@ -16,6 +17,7 @@ import com.example.musicplayer.MusicLibrary.loadMetaData
 import com.example.musicplayer.notification.MusicNotification
 import com.example.musicplayer.play.PlayBack
 import com.example.musicplayer.play.PlayBackInfoListener
+import com.example.musicplayer.ui.util.exception
 import com.example.musicplayer.ui.util.supervisorJob
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.*
@@ -45,7 +47,6 @@ class MusicService : MediaBrowserServiceCompat() {
                         token = sessionToken!!,
                         description = playBack?.item?.description!!,
                     )
-
 
                     if (!serviceStart) {
                         ContextCompat.startForegroundService(
@@ -113,8 +114,8 @@ class MusicService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToPrevious() {
-
         }
+
     }
 
     override fun onCreate() {
@@ -149,7 +150,7 @@ class MusicService : MediaBrowserServiceCompat() {
     ) {
         if (parentId == MusicLibrary.ROOT_ID) {
 
-            CoroutineScope(supervisorJob).launch {
+            CoroutineScope(supervisorJob + Dispatchers.IO + exception).launch {
                 val item = loadLocalMusics()
 
                 //화면에 구성할 리스트

@@ -60,7 +60,8 @@ class MusicAdapter : ListAdapter<MediaBrowserCompat.MediaItem, MusicAdapter.Musi
         }
 
         fun bind(position: Int) {
-            val item = MusicLibrary.loadMetaData(getItem(position).mediaId)
+            val item = MusicLibrary[getItem(position).mediaId]
+
             item?.let {
                 val title = it.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE)
                 val artist = it.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)

@@ -62,12 +62,9 @@ class PlayBack(context: Context, val listener: PlayBackInfoListener) : BasePlayB
         initializePlayer()
 
         try {
-            MusicLibrary.loadMetaData(item?.description?.mediaId)?.let {
-                mediaPlayer?.setDataSource(
-                    context,
-                    Uri.parse(it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID))
-                )
-                mediaPlayer?.prepare()
+            mediaPlayer?.let {
+                it.setDataSource(context,item?.description?.mediaUri!!)
+                it.prepare()
             }
         } catch (e: Exception) {
             throw RuntimeException("Exception")
