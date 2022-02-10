@@ -31,8 +31,9 @@ object MusicLibrary {
         MediaStore.Audio.Media.DISPLAY_NAME
     )
 
+    operator fun get(mediaId: String?) = library[KEY]?.firstOrNull { it.description.mediaId == mediaId }
 
-    fun loadMetaData(mediaId : String?) : MediaMetadataCompat?{
+    fun loadMetaData(mediaId: String?): MediaMetadataCompat? {
         return library[KEY]?.first { it.description.mediaId == mediaId }
     }
 
@@ -70,8 +71,10 @@ object MusicLibrary {
                     it.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
                     it.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                     it.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
+                    it.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id.toString())
+
                     it.putString(
-                        MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+                        MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
                         Uri.withAppendedPath(
                             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                             id.toString()
