@@ -109,14 +109,25 @@ class MusicService : MediaBrowserServiceCompat() {
             playBack?.stop()
         }
 
+        /**
+         * - 순차 or 셔플 모드 확인.
+         * - 사용자가 클릭한 음악이 항상 first가 되도록 기능 구현.
+         * -- 만약, 클릭한 음악이 중간일 경우, 현재 클릭된 음악을 기준으로 parsing한 뒤, 앞에 있는 리스트들을 뒤로 붙여서 진행하도록 진행
+         */
         override fun onSkipToNext() {
+            session?.controller?.queue?.asSequence()?.let{
 
+            }
         }
 
         override fun onSkipToPrevious() {
         }
 
     }
+
+    /**
+     * 세션은 생성하면 자동적으로 시스템에 등록되지만 setActive를 true로 해야 동작이 된다.
+     */
 
     override fun onCreate() {
         super.onCreate()
@@ -141,6 +152,7 @@ class MusicService : MediaBrowserServiceCompat() {
         rootHints: Bundle?
     ): BrowserRoot? {
         Logger.e("onGetRoot")
+
         return BrowserRoot(MusicLibrary.ROOT_ID, null)
     }
 
@@ -150,7 +162,7 @@ class MusicService : MediaBrowserServiceCompat() {
     ) {
         if (parentId == MusicLibrary.ROOT_ID) {
 
-            CoroutineScope(supervisorJob + Dispatchers.IO + exception).launch {
+            CoroutineScope( Dispatchers.IO + exception).launch {
                 val item = loadLocalMusics()
 
                 //화면에 구성할 리스트
@@ -176,5 +188,10 @@ class MusicService : MediaBrowserServiceCompat() {
         }
 
         result.sendResult(null)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        session?.release()
     }
 }
